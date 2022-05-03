@@ -1,0 +1,137 @@
+class Controller
+
+types
+    public OperationsMode = <Normal>|<Failure>;
+
+instance variables
+    public ctl_q : real; -- radians, angle of joint  
+    public ctl_q_dot : real; -- radians/sec. angular velocity of joint
+    public e : real; --radians, Targt and current angle error 
+    public e_dot : real; -- radian/sec, rate of change error. 
+    public e_old : real; --radians, Previous target and current angle error
+    public ctl_motor_state : Motor`MotorState; -- 1=up, 0=closed, -1=down
+    public ctl_mode : OperationsMode;
+    public ctl_q_t : real; --degrees, Target angle
+    public ctl_last_time : real;
+    public ctl_t : real;
+    public ctl_delta : real;
+    public ctl_tau : real --controller tau
+
+
+    
+values
+    Max_q_dot : real = 10;
+    q_t : real = 25;
+    K_p : real = 0; --proportional factor 
+    K_d : real = 0; --Derivative factor
+
+operations
+    public Controller: () ==> Controller
+    Controller() == (
+        ctl_q := 0;
+        ctl_motor_state := <Normal>;
+        ctl_q_dot := 0;
+        ctl_mode := <Normal>;
+        ctl_q_t := 25;
+        e := 0;
+        e_dot := 0; 
+        e_old := 0;
+        ctl_t := 0;
+        ctl_last_time := 0;
+        ctl_delta := 0;
+        ctl_tau := 0;
+    );
+
+    public logic: () ==> ()
+    logic() ==duration(0) (
+
+        
+        ctl_t := time / 1E9; --opmærksom på første step
+        if ctl_t <= 0 then ctl_t := 0.0000001;
+        ctl_delta := (ctl_t - ctl_last_time);
+        ctl_last_time := ctl_t;
+
+        Get_Error_target_angle();
+        Get_Rate_of_change();
+        Calculate_tau();
+        MySystem`mtr.SetMotorTorque(ctl_tau);
+    );
+    public Get_Error_target_angle: () ==> ()
+    Get_Error_target_angle() ==(
+        e_old := e;
+        e := ctl_q_t - ctl_q;
+    );
+
+    public Get_Rate_of_change: () ==> ()
+    Get_Rate_of_change() == (
+        Get_Error_target_angle();
+        e_dot := (e-e_old)/(ctl_delta)
+    );
+
+    public Calculate_tau: () ==> ()
+    Calculate_tau() == (
+        ctl_tau := K_p * e + K_d*e_dot;
+    );
+
+
+    public SetMode: (OperationsMode) ==> ()
+    SetMode(s) == duration(0) (
+        ctl_mode := s;
+    );
+
+    public SetMotorState: (Motor`MotorState) ==> ()
+    SetMotorState(s) == duration(1E8) (
+        MySystem`mtr.SetMotorState(s);
+        ctl_motor_state := MySystem`mtr.GetMotorState();
+    );
+
+
+    public MonitorAngle: () ==> ()
+    MonitorAngle() == duration (1E8) (
+        ctl_q := MySystem`snr.ReadAngle();
+    );
+
+    public MonitorVelocity: () ==> ()
+    MonitorVelocity() == duration (1E8) (
+        ctl_q_dot := MySystem`snr.ReadVelocity();
+    );
+
+    public MonitorAcceleration: () ==> ()
+    MonitorAcceleration() == duration (1E8) (
+        ctl_q_dot := MySystem`snr.ReadAcceleration();
+    );
+
+    public EnsureSafeAngle: () ==> ()
+    EnsureSafeAngle() == duration (5E8) (
+        if ctl_mode = <Normal>
+        then
+        (
+            if ctl_q_dot < -Max_q_dot
+            then (
+            SetMotorState(<Normal>)
+            )
+            else if ctl_q_dot > Max_q_dot
+            then (
+            SetMotorState(<Normal>)
+            )
+        )
+        else if ctl_mode = <Failure>
+        then
+        (
+            --Contact support
+            return;
+        )
+    );
+
+    public isFinished : () ==> ()
+    isFinished() == skip;
+
+thread
+    periodic(1E9,0,0,0)(logic);
+sync
+    --per isFinished => (time > final_sim_time);
+    mutex(MonitorAngle);
+    mutex(MonitorVelocity);
+
+
+end Controller

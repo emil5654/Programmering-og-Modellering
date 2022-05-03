@@ -1,0 +1,125 @@
+class Environment
+
+types
+    public Event = <MotorFailure> | <MotorRepair>;
+    
+instance variables
+    now : real; --time
+    public env_q : real; -- radians, angle of joint  
+    public env_q_dot : real; -- radians/sec. angular velocity of joint
+    i: real;
+    temp : seq of real;
+    public data_history : seq of (real*real*real*real*Motor`MotorState);
+    public last_time : real;
+    env_q_dot_dot: real; -- radians/sec**2, constant acceleration
+    env_torque_gravity : real;
+    env_torque_friction : real;
+    env_I : real; -- mass momemt of Inertia
+    q_t : real;
+    sign : real;
+    env_torque_motor : real;
+    events : seq of (real*Event*int);
+
+values
+    N2: real = 90; -- radians, upper bound of target angle  
+    N1: real = 0; -- radians, lower bound of target angle
+    M1: real = -10; -- radians, lower bound of safe angle
+    M2: real = 100; -- radians upper bound of safe angle. 
+    Max_q_dot : real = 10;
+    m: real = 1.2; --mass arm
+    g: real = -9.81; 
+    r: real = 0.8; --meter
+    F_c: real = 0.1;
+    F_v: real = 0.05;
+
+
+
+operations
+    public Environment: () ==> Environment
+    Environment() == (
+        now:= 0;
+        env_q := 0;
+        env_q_dot := 0;
+        i :=0;
+        temp :=[0];
+        data_history := [];
+        last_time := 0;
+        env_q_dot_dot :=0;
+        env_torque_gravity := 0;
+        env_torque_friction := 0;
+        env_I := 0;
+        q_t := 30;
+        sign :=0;
+        env_torque_motor := 0;
+        events := [];
+    );
+
+    public Step: () ==> ()
+        Step() == duration (0) (
+        dcl t : real := time / 1E9;
+        dcl delta : real := (t - last_time);
+        last_time := t;
+        env_I := m*r*r;
+        env_torque_gravity := m*g*r*MATH`cos((MATH`pi/180)*env_q);
+        if(env_q_dot >= 0) then (sign := 1) else (sign := -1);
+        env_torque_friction := F_c*sign+F_v*env_q_dot;
+        env_q_dot_dot := (env_torque_motor - env_torque_friction + env_torque_gravity)/env_I;
+        env_q_dot := env_q_dot_dot*delta + env_q_dot;
+        env_q := env_q + env_q_dot*delta;
+        );
+
+    public CurrentAngle: () ==> (real)
+        CurrentAngle() == duration(1E8) (
+            return env_q;
+        );
+    public CurrentVelocity: () ==> (real)
+        CurrentVelocity() == duration(1E8) (
+            return env_q_dot;
+        );
+
+    public CurrentAcceleration: () ==> (real)
+        CurrentAcceleration() == duration(1E8) (
+            return env_q_dot_dot;
+        );
+
+    public SetMotorTorque : (real) ==> ()
+        SetMotorTorque(s) == duration(0) (
+            env_torque_motor := s;
+        );
+
+    public recordstate : () ==> ()
+        recordstate() == duration(0) (
+        data_history := data_history ^ [mk_(env_q,  env_q_dot , env_q_dot_dot, time/1E9, MySystem`mtr.GetMotorState())];
+        );
+
+    public AddEvent : real * Event * int ==> ()
+        AddEvent(t, e, d) == duration (0) (
+        events := events ^ [mk_(t,e,d)];
+        );
+    
+    public CreateEvent : () ==> ()
+    CreateEvent() == (
+        if len events > 0 then (
+           let mk_(stime,event,event_data) = hd events
+            in if stime <= time then (
+                if(event = <MotorFailure>) then (
+                    if(event_data = 0) then MySystem`mtr.MotorFailed();
+                ) else if(event = <MotorRepair>) then (
+                    if(event_data = 0) then MySystem`mtr.MotorRepaired();
+                );
+                events := tl events;
+            )
+        )
+    );
+
+sync
+    --per isFinished => (time > final_sim_time);
+    mutex(Step);
+    mutex(CreateEvent);
+
+thread
+    --periodic(1E9,0,0,0)(CreateEvent);
+    periodic(1E9,0,0,0)(Step);
+
+
+end Environment

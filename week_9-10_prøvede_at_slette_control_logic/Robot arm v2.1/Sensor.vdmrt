@@ -1,0 +1,39 @@
+class Sensor 
+types
+    
+values
+    
+instance variables
+Snr_q : real
+
+
+operations
+    public Sensor: () ==> Sensor
+    Sensor() == (
+        Snr_q := 0;
+    );
+    
+    public ReadAngle: () ==> (real)
+    ReadAngle() == duration(1E7) (
+        return MySystem`env.CurrentAngle();
+    );
+
+    public ReadVelocity: () ==> (real)
+    ReadVelocity() == duration(1E7) (
+        return MySystem`env.CurrentVelocity();
+    );
+
+    public ReadAcceleration: () ==> (real)
+    ReadAcceleration() == duration(1E7) (
+        return MySystem`env.CurrentAcceleration();
+    );
+
+    public Step: () ==> ()
+    Step() == (
+        Snr_q := ReadAngle();
+    );
+
+thread
+    periodic(1E9,0,0,0)(Step);
+
+end Sensor 

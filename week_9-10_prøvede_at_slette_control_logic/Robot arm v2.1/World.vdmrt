@@ -1,0 +1,173 @@
+class World
+
+instance variables 
+    io : IO := new IO();
+    current_time : real := 0;
+
+operations
+    public UpdateTimeStamp : () ==> ()
+    UpdateTimeStamp() == duration(0) (
+        current_time := time/ 1E9;
+    );
+
+    public Scenario1 : () ==> (seq of (real*real*real*real*Motor`MotorState))
+        Scenario1() == (
+        UpdateTimeStamp();
+        MySystem`env.AddEvent(5E9, <MotorFailure>, 0);
+        start(MySystem`env);
+        MySystem`ctl.EnsureSafeAngle();
+        UpdateTimeStamp();
+        duration(1E9) skip;
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorAngle();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorVelocity();
+        UpdateTimeStamp();
+        MySystem`ctl.EnsureSafeAngle();
+        UpdateTimeStamp();
+        duration(1E9) skip;
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorAngle();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorVelocity();
+        UpdateTimeStamp();
+        MySystem`ctl.EnsureSafeAngle();
+        UpdateTimeStamp();
+        duration(1E9) skip;
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorAngle();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorVelocity();
+        UpdateTimeStamp();
+        MySystem`ctl.EnsureSafeAngle();
+        UpdateTimeStamp();
+        duration(1E9) skip;
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorAngle();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorVelocity();
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorAngle();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorVelocity();
+        UpdateTimeStamp();
+        MySystem`ctl.EnsureSafeAngle();
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        duration(1E9) skip;
+        MySystem`ctl.SetMotorState(<Normal>);
+        UpdateTimeStamp();
+        return MySystem`env.data_history;
+        );
+    
+    
+    public Scenario2 : () ==> (seq of (real*real*real*real*Motor`MotorState))
+        Scenario2() == (
+        UpdateTimeStamp();
+        start(MySystem`env);
+        start(MySystem`ctl);
+        start(MySystem`mtr);
+        start(MySystem`snr);
+        duration(10E9) skip;
+        return MySystem`env.data_history;
+        );
+
+    public Scenario3 : () ==> (seq of (real*real*real*real*Motor`MotorState))
+        Scenario3() == (
+        UpdateTimeStamp();
+        MySystem`env.AddEvent(5E9, <MotorFailure>, 0);
+        MySystem`env.AddEvent(8E9, <MotorRepair>, 0);
+        start(MySystem`env);
+        MySystem`ctl.EnsureSafeAngle();
+        UpdateTimeStamp();
+        duration(1E9) skip;
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorAngle();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorVelocity();
+        UpdateTimeStamp();
+        MySystem`ctl.EnsureSafeAngle();
+        UpdateTimeStamp();
+        duration(1E9) skip;
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorAngle();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorVelocity();
+        UpdateTimeStamp();
+        MySystem`ctl.EnsureSafeAngle();
+        UpdateTimeStamp();
+        duration(1E9) skip;
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorAngle();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorVelocity();
+        UpdateTimeStamp();
+        MySystem`ctl.EnsureSafeAngle();
+        UpdateTimeStamp();
+        duration(1E9) skip;
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorAngle();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorVelocity();
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorAngle();
+        UpdateTimeStamp();
+        MySystem`ctl.MonitorVelocity();
+        UpdateTimeStamp();
+        MySystem`ctl.EnsureSafeAngle();
+        UpdateTimeStamp();
+        MySystem`mtr.Step();
+        MySystem`snr.Step();
+        MySystem`env.Step();
+        UpdateTimeStamp();
+        duration(1E9) skip;
+        MySystem`ctl.SetMotorState(<Normal>);
+        UpdateTimeStamp();
+        return MySystem`env.data_history;
+        );
+
+
+end World

@@ -1,0 +1,69 @@
+class Motor
+types
+    public MotorState = <Normal> | <Failure>;
+    
+values
+    
+instance variables
+motor_state : MotorState;
+motor_torque : real;
+dq_dot : real;
+ms : real;
+
+operations
+    public Motor: () ==> Motor
+    Motor() == (
+        motor_state := <Normal>;
+        motor_torque := 0;
+        dq_dot := 0;
+        ms := 0;
+    );
+
+    public Step: () ==> ()
+        Step() == duration (0) (
+        if(motor_state = <Normal>) then (ms := 1);
+        if(motor_state = <Failure>) then (ms := 0);
+        MySystem`env.SetMotorTorque(motor_torque); 
+        );
+
+    public SetMotorTorque: (real) ==> ()
+    SetMotorTorque(s) == duration(1E8) (
+        if(motor_state = <Failure>) then (MySystem`env.recordstate();)
+        else
+        (
+        motor_torque := s;
+        MySystem`env.recordstate();
+        )
+
+    );
+
+    public SetMotorState: (MotorState) ==> ()
+    SetMotorState(s) == (
+        if(motor_state = <Failure>) then (MySystem`env.recordstate();)
+        else
+        (
+        motor_state := s;
+        MySystem`env.recordstate();
+        )
+    );
+
+    public GetMotorState: () ==> (MotorState)
+    GetMotorState() == duration(1E8) (
+        return motor_state;
+    );
+
+    public MotorFailed: () ==> ()
+    MotorFailed() == duration(0) (
+        Motor`motor_state := <Failure>;
+    );
+
+    public MotorRepaired: () ==> ()
+    MotorRepaired() == duration(0) (
+        motor_state := <Normal>;
+        MySystem`env.recordstate();
+    );
+
+thread
+    periodic(1E9,0,0,0)(Step);
+    
+end Motor
