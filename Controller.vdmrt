@@ -1,0 +1,51 @@
+-- DESTECS (Design Support and Tooling for Embedded Control Software)
+-- Grant Agreement Number: INFSO-ICT-248134
+-- Seventh Framework Programme
+-- WaterTank project: introductory project to the DESTECS tool.
+-- More details can be found at DESTECS User Manual, chapter 6.
+class Controller
+
+
+instance variables
+
+	-- @ interface: type = parameter, name="ControllerActive";
+	public ControllerActive : BoolPort := new BoolPort(true);
+	
+  Sensor   : Sensor;
+  Actuator : Actuator;
+
+values
+
+
+operations
+
+public Controller : Sensor * Actuator  ==> Controller
+Controller(a,t)==
+(
+  Sensor   := a;
+  Actuator := t;
+ );
+
+private loop : () ==>()
+loop()==
+	cycles(2)
+   (-- retrieve the first value from Co-SIM
+   
+   let angle : real = Sensor.getValue()
+   in
+   (
+    
+    if( angle >= HardwareInterface`maxAngle.getValue())
+    then Actuator.setValue(-5.0);
+    
+    if( angle <= HardwareInterface`minAngle.getValue())
+    then Actuator.setValue(5.0);
+    );
+			
+    
+   );
+
+thread
+	periodic(10E6,0,0,0)(loop);	 
+		 
+end Controller

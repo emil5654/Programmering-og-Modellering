@@ -1,0 +1,14 @@
+class Actuator
+
+instance variables
+
+	port : RealPort;
+
+operations
+	public Actuator: Port ==> Actuator
+	Actuator(p) == port := p;
+	
+	public setValue: real ==> ()
+	setValue(value) == port.setValue(value);
+
+end Actuator

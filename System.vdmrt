@@ -1,0 +1,29 @@
+system System
+
+instance variables
+
+-- Hardware interface variable required by FMU Import/Export
+public static hwi: HardwareInterface := new HardwareInterface();
+    
+
+instance variables
+
+  public sensor : Sensor;
+  public actuator : Actuator;
+  public static controller : [Controller] := nil;
+
+	cpu1 : CPU := new CPU(<FP>, 20);
+operations
+
+public System : () ==> System
+System () == 
+(
+	sensor := new Sensor(hwi.sensor_angle);
+	actuator :=  new Actuator(hwi.motor_tau);
+	
+	controller := new Controller(sensor, actuator);
+
+	cpu1.deploy(controller,"Controller");
+);
+
+end System

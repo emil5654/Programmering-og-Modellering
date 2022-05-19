@@ -1,0 +1,24 @@
+--##	EXPORT	c8e8325cd9adec1da2be3ca166bcdc2313ae0c6	Robot_Arm.fmu	2022-19-05 15:35:32	tool-wrapper	{"name":"fmu-import-export","version":"0.2.20"}
+--##	EXPORT	6cdca6abbd10ab40fb39f0060842b5ed41c3b26a	Robot_Arm.fmu	2022-19-05 14:43:10	tool-wrapper	{"name":"fmu-import-export","version":"0.2.20"}
+--##	EXPORT	2755ec64fe3eb52ebf65f5c15ebdb87e89aabdcc	Robot_Arm.fmu	2022-19-05 14:35:42	tool-wrapper	{"name":"fmu-import-export","version":"0.2.20"}
+--##	EXPORT	a3e522c3c41c45755c3daec4610342ba283c92c	Robot_Arm.fmu	2022-19-05 14:28:00	tool-wrapper	{"name":"fmu-import-export","version":"0.2.20"}
+--##	EXPORT	48c4521fde2cecb726d72ef88f8e67a8cf3b53cb	Robot_Arm.fmu	2022-19-05 13:50:31	tool-wrapper	{"name":"fmu-import-export","version":"0.2.20"}
+class HardwareInterface 
+values
+
+	-- @ interface: type = parameter, name="minAngle";
+	public minAngle : RealPort = new RealPort(-0.174532925);
+	
+	-- @ interface: type = parameter, name="maxAngle"; 
+	public maxAngle : RealPort = new RealPort(1.74532925);
+	
+instance variables
+	  -- @ interface: type = input, name="sensor_angle";
+	public sensor_angle : RealPort := new RealPort(0.0);
+	
+	-- @ interface: type = output, name="motor_tau";
+	public motor_tau : RealPort := new RealPort(0.0);
+	
+	
+	
+end HardwareInterface

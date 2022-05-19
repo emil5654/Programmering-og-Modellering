@@ -1,0 +1,15 @@
+class Sensor
+
+instance variables
+
+	port : RealPort;
+
+operations
+
+	public Sensor: RealPort ==> Sensor 
+	Sensor(p) == port := p;
+	
+	public getValue: () ==> real
+	getValue()== return port.getValue();
+
+end Sensor
