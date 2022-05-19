@@ -1,0 +1,1 @@
+{"fmus":{"{Controller}":"Robot_Arm.fmu","{Model}":"Robot2.fmu"},"connections":{"{Controller}.C.motor_tau":["{Controller}.C.sensor_angle"],"{Model}.M.theta":["{Model}.M.u"]},"parameters":{"{Controller}.C.ControllerActive":true}}
